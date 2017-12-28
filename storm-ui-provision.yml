@@ -1,0 +1,31 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    storm:
+      version: 1.1.1
+      mirror: http://www-us.apache.org/dist
+      user: storm
+      group: root
+      install_dir: /opt
+      base_dir: /opt/storm
+      log_dir: /opt/storm-log
+
+  tasks:
+
+  - include: init_java.yml
+  - include: init_storm.yml
+
+  - name: Storm | Set config
+    template:
+      src: "templates/storm/ui/storm.yaml"
+      dest: "{{storm.install_dir}}/apache-storm-{{ storm.version }}/conf/"
+
+  - name: Storm UI | Run Nimbus
+    shell: ./storm ui &
+    become: true
+    become_user: root
+    args:
+      chdir: "{{storm.install_dir}}/apache-storm-{{storm.version}}/bin/"
+      executable: /bin/bash
+
