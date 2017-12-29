@@ -3,11 +3,18 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
+MY_VAGRANT_DOT_FILE = ENV['VAGRANT_DOTFILE_PATH'] || Dir.pwd + '/.vagrant'
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "ubuntu/trusty64"
-
   memory_mb = 1024
+
+# First, install python
+  config.vm.provision "shell" do |s|
+    s.inline = "apt-get install -y python"
+  end
+  
 
   cluster = {
     'zookeeper-node-1'        => "192.168.5.100",
