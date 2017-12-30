@@ -163,7 +163,7 @@ you stop the cluster and can restart the cluster with
 
 # Apache Storm
 
-Creates 3 [Storm](http://storm.apache.org/) instances. One Nimbus, one supervisor and on UI node.
+Creates 2 [Storm](http://storm.apache.org/) instances. One Nimbus with UI and one supervisor node.
 
 ## Specs
 
@@ -191,3 +191,10 @@ Repeat with `storm-supervisor-node-1`
 Instead of executing `./storm nimbus &` execute `./storm supervisor &`
 
 Run UI on the Nimbus node by executing `./storm ui &`
+
+## Storm Topology
+
+Find a Storm topology to read from Kafka (topic: `web2kafka`) under `client/storm`.
+Build the project with `mvn package` and deploy the artifact on nimbus with
+`./storm jar /PATHTOJAR/kafka2storm.jar de.speexx.experimental.storm.Topology`.
+
