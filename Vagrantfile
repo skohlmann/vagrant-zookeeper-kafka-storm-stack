@@ -23,7 +23,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     'kafka-node-1'            => "192.168.5.110",
     'storm-nimbus-node-1'     => "192.168.5.120",
     'storm-supervisor-node-1' => "192.168.5.130",
-    'storm-ui-node-1'         => "192.168.5.140",
   }
 
   cluster.each_with_index do |(short_name, ip), idx|
@@ -49,10 +48,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             ansible.playbook = "storm-supervisor-provision.yml"
         elsif short_name.include? "zookeeper"
             ansible.playbook = "zookeeper-provision.yml"
-        elsif short_name.include? "kafka"
+        else short_name.include? "kafka"
             ansible.playbook = "kafka-provision.yml"
-        else short_name.include? "storm-ui"
-            ansible.playbook = "storm-ui-provision.yml"
         end
       end
     end

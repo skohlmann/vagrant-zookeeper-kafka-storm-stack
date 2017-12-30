@@ -186,7 +186,8 @@ At this time of contribution, there is no autostart for the Storm services. Star
 4. Execute `./storm nimbus &`
 5. Exit host
 
-Repeat with `storm-supervisor-node-1` and `storm-ui-node-1`.
+Repeat with `storm-supervisor-node-1`
 
-Instead of executing `./storm nimbus &` execute `./storm supervisor &` and `./storm ui &`.
+Instead of executing `./storm nimbus &` execute `./storm supervisor &`
 
+Run UI on the Nimbus node by executing `./storm ui &`
