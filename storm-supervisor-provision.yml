@@ -15,19 +15,12 @@
 
   - include: init_java.yml
   - include: init_storm.yml
+  - include: init_network.yml
 
   - name: Supervisor | Set config
     template:
       src: "templates/storm/supervisor/storm.yaml"
       dest: "{{storm.install_dir}}/apache-storm-{{ storm.version }}/conf/"
-
-  - name: Supervisor | Nimbus to /etc/hosts
-    lineinfile:
-      dest: /etc/hosts
-      regexp: 'storm-nimbus-node-1'
-      line: '192.168.5.120   storm-nimbus-node-1'      
-    become: true
-    become_user: root
 
   - name: Supervisor | Run Supervisor
     shell: "{{storm.install_dir}}/apache-storm-{{storm.version}}/bin/storm supervisor &"

@@ -2,19 +2,23 @@ package de.speexx.experimental.storm;
 
 import java.io.IOException;
 import java.util.Properties;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.storm.Config;
 import org.apache.storm.StormSubmitter;
+import org.apache.storm.generated.StormTopology;
+import org.apache.storm.kafka.spout.ByTopicRecordTranslator;
 import org.apache.storm.kafka.spout.KafkaSpout;
 import org.apache.storm.kafka.spout.KafkaSpoutConfig;
-import org.apache.storm.topology.BasicOutputCollector;
-import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.topology.base.BaseBasicBolt;
-import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.storm.kafka.spout.KafkaSpoutConfig.FirstPollOffsetStrategy.EARLIEST;
+import org.apache.storm.kafka.spout.KafkaSpoutRetryExponentialBackoff;
+import org.apache.storm.kafka.spout.KafkaSpoutRetryService;
+import org.apache.storm.kafka.spout.KafkaSpoutRetryExponentialBackoff.TimeInterval;
 
 /**
  *
@@ -24,48 +28,55 @@ public class Topology {
 
     private static final Logger LOG = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws Exception {
-        final TopologyBuilder tb = new TopologyBuilder();
-        tb.setSpout("kafka_spout", new KafkaSpout<>(KafkaSpoutConfig.builder(kafkaServer() + ":" + kafkaPort(), "topic").build()), 1);
+    private static final String TOPIC_2_STREAM = "test_2_stream";
+    
+    public static void main(final String[] args) throws Exception {
+        new Topology().runMain(args);
+    }
 
-        final BaseBasicBolt bolt = new BaseBasicBolt() {
-            private static final long serialVersionUID = -4068637326848549242L;
-            public void execute(final Tuple tuple, final BasicOutputCollector collector) {
-                final int tupleSize = tuple.size();
-                for (int i = 0; i < tupleSize; i++) {
-                    final String msg = tuple.getString(i);
-                    LOG.info("Message: " + msg);
-                }
-            }
-
-            @Override
-            public void declareOutputFields(final OutputFieldsDeclarer ofd) {
-                return;
-            }
-        };
-        
-        tb.setBolt("print", bolt).shuffleGrouping("kafka_spout");
-        final Config conf = new Config();
-        conf.setDebug(true);
-        conf.setNumWorkers(1);
-        StormSubmitter.submitTopology("perfPrint", conf, tb.createTopology());
-
+    void runMain(final String[] args) throws Exception {
+        final Config cfg = getConfig();
+        final KafkaSpoutConfig kafkaConfig = getKafkaSpoutConfig(bootstrapServer());
+        final StormTopology topology = getTopologyKafkaSpout(kafkaConfig);
+        StormSubmitter.submitTopology("perfPrint", cfg, topology);
     }
     
-    static Properties kafkaConsumerConfiguration() throws IOException {
-        
-        final Properties properties = fetchKafkaProperties();
-        
-        final Properties kafkaProperties = new Properties();
-        kafkaProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getProperty("kafka.server") + ":" + properties.getProperty("kafka.port"));
-        kafkaProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        kafkaProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-        return kafkaProperties;
+    protected Config getConfig() {
+        final Config config = new Config();
+        config.setDebug(true);
+        config.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 2048);
+        config.put(Config.TOPOLOGY_BACKPRESSURE_ENABLE, false);
+        config.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 16384);
+        config.put(Config.TOPOLOGY_EXECUTOR_SEND_BUFFER_SIZE, 16384);
+        return config;
     }
+
+    StormTopology getTopologyKafkaSpout(final KafkaSpoutConfig<String, String> spoutConfig) {
+        final TopologyBuilder tp = new TopologyBuilder();
+        tp.setSpout("kafka_spout", new KafkaSpout<>(spoutConfig), 1);
+        tp.setBolt("kafka_bolt", new SimpleBolt()).shuffleGrouping("kafka_spout", TOPIC_2_STREAM);
+        return tp.createTopology();
+    }
+
+    KafkaSpoutConfig<String, String> getKafkaSpoutConfig(final String bootstrapServers) throws Exception {
+        final ByTopicRecordTranslator<String, String> trans = new ByTopicRecordTranslator<>(
+                (r) -> new Values(r.topic(), r.partition(), r.offset(), r.key(), r.value()),
+                       new Fields("topic", "partition", "offset", "key", "value"), TOPIC_2_STREAM);
+        return KafkaSpoutConfig.builder(bootstrapServers, kafkaTopicName())
+            .setProp(ConsumerConfig.GROUP_ID_CONFIG, "kafkaSpoutGroup")
+            .setRetry(getRetryService())
+            .setRecordTranslator(trans)
+            .setOffsetCommitPeriodMs(10_000)
+            .setFirstPollOffsetStrategy(EARLIEST)
+            .setMaxUncommittedOffsets(250)
+            .build();
+    }
+
+    KafkaSpoutRetryService getRetryService() {
+        return new KafkaSpoutRetryExponentialBackoff(TimeInterval.microSeconds(500),
+            TimeInterval.milliSeconds(2), Integer.MAX_VALUE, TimeInterval.seconds(10));
+    }
+
 
     static String kafkaTopicName() throws IOException {
         return fetchKafkaProperties().getProperty("kafka.topic");
@@ -83,5 +94,9 @@ public class Topology {
         final Properties properties = new Properties();
         properties.load(Topology.class.getResourceAsStream("/META-INF/kafka.properties"));
         return properties;
+    }
+    
+    static String bootstrapServer() throws IOException {
+        return kafkaServer() + ":" + kafkaPort();
     }
 }

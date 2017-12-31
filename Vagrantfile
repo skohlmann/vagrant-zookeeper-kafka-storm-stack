@@ -16,6 +16,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
   
 
+  # If adding a new host add configuration also to init_network.yml
   cluster = {
     'zookeeper-node-1'        => "192.168.5.100",
     'zookeeper-node-2'        => "192.168.5.101",

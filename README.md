@@ -157,8 +157,12 @@ you stop the cluster and can restart the cluster with
 1. Connect to Kafka service with: `vagrant ssh kafka-node-1`
 2. Change to Kafka `bin` directory: `cd /opt/kafka_2.11-1.0.0/bin
 3. List existing topics: `./kafka-topics.sh  --list --zookeeper 192.168.5.100:2181`
-4. Create new topic: `./kafka-topics.sh --create --topic firsttopic --zookeeper 192.168.5.100:2181 --partitions 1 --replication-factor 1`<br />Output: `Created topic "firsttopic".`
-5. Show created topic: `./kafka-topics.sh  --list --zookeeper 192.168.5.100:2181`<br />Output: `firsttopic`
+4. Create new topic: `./kafka-topics.sh --create --topic web2kafka --zookeeper 192.168.5.100:2181 --partitions 1 --replication-factor 1`<br />Output: `Created topic "firsttopic".`
+5. Show created topic: `./kafka-topics.sh  --list --zookeeper 192.168.5.100:2181`<br />Output: `web2kafka`
+
+List all entries in a topic:
+
+1. `./kafka-console-consumer.sh --zookeeper 192.168.5.100:2181 --topic web2kafka --from-beginning`
 
 
 # Apache Storm

@@ -15,6 +15,7 @@
 
   - include: init_java.yml
   - include: init_storm.yml
+  - include: init_network.yml
 
   - name: Nimbus | Set config
     template:

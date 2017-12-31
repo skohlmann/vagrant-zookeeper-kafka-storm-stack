@@ -26,6 +26,7 @@
       state: present
 
   - include: init_java.yml
+  - include: init_network.yml
 
   - name: Zookeeper | Create base directory
     become_user: root
