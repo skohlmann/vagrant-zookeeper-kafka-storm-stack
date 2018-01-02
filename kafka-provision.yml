@@ -35,6 +35,11 @@
         src: "templates/kafka/server.properties"
         dest: "{{kafka_dir}}/config"
 
+    - name: Kafka | Set Consumer config
+      template:
+        src: "templates/kafka/consumer.properties"
+        dest: "{{kafka_dir}}/config"
+
     - name: Kafka | Set Server Startup
       template:
         src: "templates/kafka/kafka-server-start.sh"

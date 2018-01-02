@@ -39,7 +39,7 @@
 
   - name: Zookeeper | Download
     get_url:
-      url: http://www-us.apache.org/dist/zookeeper/zookeeper-{{zookeeper.version}}/zookeeper-{{zookeeper.version}}.tar.gz
+      url: http://mirror.dkd.de/apache/zookeeper/zookeeper-{{zookeeper.version}}/zookeeper-{{zookeeper.version}}.tar.gz
       dest: /tmp/zookeeper-{{zookeeper.version}}.tar.gz
 
   - name: Zookeeper | Extract Zookeeper

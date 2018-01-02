@@ -24,19 +24,35 @@
     become: true
     become_user: root
 
-  - name: Network | Nimbus to /etc/hosts
+  - name: Network | Kafka to /etc/hosts
     lineinfile:
       dest: /etc/hosts
-      regexp: 'storm-nimbus-node-1'
-      line: '192.168.5.120   storm-nimbus-node-1'
+      regexp: 'kafka-node-1'
+      line: '192.168.5.110   kafka-node-1'
     become: true
     become_user: root
 
   - name: Network | Kafka to /etc/hosts
     lineinfile:
       dest: /etc/hosts
-      regexp: 'kafka-node-1'
-      line: '192.168.5.110   kafka-node-1'
+      regexp: 'kafka-node-2'
+      line: '192.168.5.111   kafka-node-2'
+    become: true
+    become_user: root
+
+  - name: Network | Kafka to /etc/hosts
+    lineinfile:
+      dest: /etc/hosts
+      regexp: 'kafka-node-3'
+      line: '192.168.5.112   kafka-node-3'
+    become: true
+    become_user: root
+
+  - name: Network | Nimbus to /etc/hosts
+    lineinfile:
+      dest: /etc/hosts
+      regexp: 'storm-nimbus-node-1'
+      line: '192.168.5.120   storm-nimbus-node-1'
     become: true
     become_user: root
 

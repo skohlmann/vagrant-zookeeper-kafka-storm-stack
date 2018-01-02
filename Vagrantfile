@@ -22,6 +22,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     'zookeeper-node-2'        => "192.168.5.101",
     'zookeeper-node-3'        => "192.168.5.102",
     'kafka-node-1'            => "192.168.5.110",
+    'kafka-node-2'            => "192.168.5.111",
+    'kafka-node-3'            => "192.168.5.112",
     'storm-nimbus-node-1'     => "192.168.5.120",
     'storm-supervisor-node-1' => "192.168.5.130",
   }

@@ -133,7 +133,7 @@ __Note__: This is a proof of concept and test installation only. Do ot use in pr
 
 # Specs
 
-- IP address: 192.168.5.110
+- IP address: 192.168.5.110, 192.168.5.111
 - Hostnames: `kafka-node-1` 
 - [Kafka](http://kafka.apache.org/) version: 1.0.0
 - JVM: Oracle Java-8

@@ -24,7 +24,7 @@ public class ApplicationConfig extends Application {
      * all resources defined in the project.
      * If required, comment out calling this method in getClasses().
      */
-    private void addRestResourceClasses(final Set<Class<?>> resources) {
-        resources.add(Endpoint.class);
+    private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(de.speexx.experimental.web2kafka.Endpoint.class);
     }
 }

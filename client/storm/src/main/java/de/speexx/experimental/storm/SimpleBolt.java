@@ -32,6 +32,11 @@ public class SimpleBolt extends BaseRichBolt {
     public void execute(final Tuple in) {
         LOG.info("TUPLE:" + in);
         System.out.println("TUPLE:" + in);
-        this.collector.ack(in);
+        if (this.collector != null) {
+            this.collector.ack(in);
+        } else {
+        LOG.info("No collector");
+        System.out.println("No collector");
+        }
     }
 }
